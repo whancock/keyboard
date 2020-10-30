@@ -52,7 +52,7 @@ echo 0x80 > configs/c.1/bmAttributes #  USB_OTG_SRP | USB_OTG_HNP
 mkdir -p functions/rndis.usb0
 # set up mac address of remote device
 echo "42:63:65:13:34:56" > functions/rndis.usb0/host_addr
-# set up local mac address
+# set up local mac address (this is the one for the PI)
 echo "42:63:65:66:43:21" > functions/rndis.usb0/dev_addr
 
 # create HID function
