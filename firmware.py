@@ -1,4 +1,4 @@
-import asynio
+import asynchio
 from evdev import UInput, ecodes as e
 
 ui = UInput()
@@ -10,3 +10,4 @@ ui.syn()
 
 
 ui.close()
+
