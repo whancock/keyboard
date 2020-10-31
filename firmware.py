@@ -55,4 +55,3 @@ write_report(NULL_CHAR*8)
 
 
 #ui.close()
-
