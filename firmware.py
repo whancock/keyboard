@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 
 #import asyncio
-import evdev
+import asyncio, evdev
 #from evdev import UInput, ecodes as e
 
 
+encoder = evdev.InputDevice('/dev/input/event0')
 #keybd = evdev.InputDevice('/dev/hidg0')
-
-
-
-#print(evdev.list_devices())
 
 # from rmedgar.com
 NULL_CHAR = chr(0)
@@ -19,39 +16,29 @@ def write_report(report):
 		fd.write(report.encode())
 
 # e
-write_report(NULL_CHAR*2+chr(8)+NULL_CHAR*5)
-write_report(NULL_CHAR*2+chr(128)+NULL_CHAR*5)
+#write_report(NULL_CHAR*2+chr(8)+NULL_CHAR*5)
+#write_report(NULL_CHAR*2+chr(128)+NULL_CHAR*5)
 
 # ! (press shift and 1)
 # write_report(chr(32)+NULL_CHAR+chr(30)+NULL_CHAR*5)
 
 # Release all keys
-write_report(NULL_CHAR*8)
+#write_report(NULL_CHAR*8)
 
 
+async def print_events(device):
+	async for event in device.async_read_loop():
+		print(evdev.categorize(event), event.type, event.code, event.value, sep=': ')
+		if event.type == evdev.ecodes.EV_REL and event.code == evdev.ecodes.REL_X:
+			print('Rel event')
+			if event.value == 1:
+				write_report(NULL_CHAR * 2 + chr(1) + NULL_CHAR * 5)
+			elif event.value == -1:
+				print('Negative event')
+				write_report(NULL_CHAR * 2 + chr(2) + NULL_CHAR * 5)
+		# print(device.path, evdev.categorize(event), sep=': ')
 
-# from cherry pi split keyboard
-# can report multiple keys per tick, may need this later
-#def report_keyboard(c,k):
-#    with open('/dev/hidg0', 'rb+') as fk:
-#        fk.write((c).to_bytes(1, byteorder='big')+    \
-#                 (0).to_bytes(1, byteorder='big')+    \
-#                 (k[0]).to_bytes(1, byteorder='big')+ \
-#                 (k[1]).to_bytes(1, byteorder='big')+ \
-#                 (k[2]).to_bytes(1, byteorder='big')+ \
-#                 (k[3]).to_bytes(1, byteorder='big')+ \
-#                 (k[4]).to_bytes(1, byteorder='big')+ \
-#                 (k[5]).to_bytes(1, byteorder='big'))
+asyncio.ensure_future(print_events(encoder))
 
-
-
-
-#ui = UInput()
-
-
-#ui.write(e.EV_KEY, e.KEY_A, 1)  # KEY_A down
-#ui.write(e.EV_KEY, e.KEY_A, 0)  # KEY_A up
-#ui.syn()
-
-
-#ui.close()
+loop = asyncio.get_event_loop()
+loop.run_forever()
